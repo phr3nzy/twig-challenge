@@ -12,9 +12,9 @@ You can access the services on the following ports:
 It will also run MongoDB and RabbitMQ containers on ports 27017 and 5672 respectively.
 
 Swagger documentation for the services can be found on the following URLs:
-- Emails service: http://localhost:3000/documentation
-- Payments service: http://localhost:3001/documentation
-- Emails service: http://localhost:3003/documentation
+- (Orders service)[https://github.com/phr3nzy/twig-challenge-orders]: http://localhost:3000/documentation
+- (Payments service)[https://github.com/phr3nzy/twig-challenge-payments]: http://localhost:3001/documentation
+- (Emails service)[https://github.com/phr3nzy/twig-challenge-emails]: http://localhost:3003/documentation
 
 or, you can use `curl` to test the services:
 
