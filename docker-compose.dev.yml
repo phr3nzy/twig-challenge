@@ -1,0 +1,117 @@
+version: '4'
+services:
+  orders-service:
+    environment:
+      NODE_ENV: development
+      HOST: 0.0.0.0
+      PORT: 3000
+      LOG_LEVEL: debug
+      DATABASE_URL: mongodb://admin:admin@database:27017/database?retryWrites=true&w=majority&authSource=admin
+      QUEUE_URL: amqp://user:pass@queue:5672
+      PAYMENTS_SERVICE_URL: http://payments-service:3001
+    build:
+      context: ./orders
+      dockerfile: Dockerfile
+    command: sh -c "sleep 15 && npm run push && node /app/dist"
+    ports:
+      - 3000:3000
+    expose:
+      - 3000
+    links:
+      - payments-service
+      - database
+      - queue
+    depends_on:
+      - payments-service
+      - database
+      - queue
+    restart: always
+    networks:
+      - default
+
+  payments-service:
+    environment:
+      NODE_ENV: development
+      HOST: 0.0.0.0
+      PORT: 3001
+      LOG_LEVEL: debug
+      DATABASE_URL: mongodb://admin:admin@database:27017/database?retryWrites=true&w=majority&authSource=admin
+      QUEUE_URL: amqp://user:pass@queue:5672
+    build:
+      context: ./payments
+      dockerfile: Dockerfile
+    command: sh -c "sleep 15 && npm run push && node /app/dist"
+    ports:
+      - 3001:3001
+    expose:
+      - 3001
+    links:
+      - database
+      - queue
+    depends_on:
+      - database
+      - queue
+    restart: always
+    networks:
+      - default
+
+  emails-service:
+    environment:
+      NODE_ENV: development
+      HOST: 0.0.0.0
+      PORT: 3003
+      LOG_LEVEL: debug
+      QUEUE_URL: amqp://user:pass@queue:5672
+    build:
+      context: ./emails
+      dockerfile: Dockerfile
+    command: sh -c "sleep 15 && node /app/dist"
+    ports:
+      - 3003:3003
+    expose:
+      - 3003
+    links:
+      - queue
+    depends_on:
+      - queue
+    restart: always
+    networks:
+      - default
+
+  database:
+    image: bitnami/mongodb:latest
+    environment:
+      - MONGODB_ADVERTISED_HOSTNAME=database
+      - MONGODB_REPLICA_SET_MODE=primary
+      - MONGODB_ROOT_USER=admin
+      - MONGODB_ROOT_PASSWORD=admin
+      - MONGODB_REPLICA_SET_KEY=replicasetkey123
+      - MONGO_INITDB_DATABASE=database
+      - MONGO_INITDB_ROOT_USERNAME=admin
+      - MONGO_INITDB_ROOT_PASSWORD=admin
+    ports:
+      - 27017:27017
+    expose:
+      - 27017
+    restart: always
+    networks:
+      - default
+
+  queue:
+    image: bitnami/rabbitmq:latest
+    environment:
+      - RABBITMQ_DEFAULT_USER=user
+      - RABBITMQ_DEFAULT_PASS=pass
+    ports:
+      - 5672:5672
+      - 15672:15672
+    expose:
+      - 5672
+      - 15672
+    restart: always
+    networks:
+      - default
+
+networks:
+  default:
+    driver: bridge
