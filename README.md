@@ -1,5 +1,7 @@
 # Twig Challenge
 
+A code challenge part of the interview process for [TWIG Finance](https://twig.ae).
+
 ## Description
 
 The `./main.sh` script will clone the three repositories ([orders](https://github.com/phr3nzy/twig-challenge-orders), [payments](https://github.com/phr3nzy/twig-challenge-payments) and [emails](https://github.com/phr3nzy/twig-challenge-emails) services) then build and run the docker containers.
